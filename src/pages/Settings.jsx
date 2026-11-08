@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
-  Settings as SettingsIcon,
   Save,
   CheckCircle2,
   AlertTriangle,
@@ -8,8 +8,7 @@ import {
   Zap,
   Database,
   Trash2,
-  Lock,
-  ExternalLink
+  Lock
 } from 'lucide-react';
 import { getConfig, saveConfig, clearStoredData } from '../services/api';
 import axios from 'axios';
@@ -67,7 +66,6 @@ export default function Settings() {
         throw new Error('Please enter an n8n webhook URL first.');
       }
 
-      // Test webhook reachable
       const res = await axios.post(
         config.n8nWebhookUrl,
         { ping: true, test: 'connectivity_probe', timestamp: new Date().toISOString() },
@@ -76,21 +74,20 @@ export default function Settings() {
 
       setTestResult({
         success: true,
-        message: `Connection successful! Status: ${res.status} (${res.statusText || 'OK'}). n8n webhook is online and accepting requests.`,
+        message: `Connection successful! Status: ${res.status} (${res.statusText || 'OK'}). n8n webhook is online.`,
         data: res.data
       });
     } catch (err) {
-      // Often n8n webhooks require specific keys or multipart, so getting a 4xx/5xx still confirms the URL is reachable!
       if (err.response) {
         setTestResult({
           success: true,
-          message: `Webhook endpoint reached! HTTP Status: ${err.response.status} (${err.response.statusText}). Endpoint is active.`,
+          message: `Webhook reached! HTTP Status: ${err.response.status} (${err.response.statusText}). Endpoint is active.`,
           data: err.response.data
         });
       } else {
         setTestResult({
           success: false,
-          message: `Connection failed: ${err.message}. Please check if the workflow is Active in n8n or check network/CORS settings.`
+          message: `Connection failed: ${err.message}. Please verify your n8n workflow is Active.`
         });
       }
     } finally {
@@ -107,21 +104,25 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Title */}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6 max-w-4xl mx-auto"
+    >
       <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">System & Integration Settings</h2>
-        <p className="text-xs text-slate-500">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">System & Integration Settings</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Configure connection endpoints for n8n workflows, Google Gemini AI pipeline, and Supabase database
         </p>
       </div>
 
-      {/* Security Advisory Notice */}
-      <div className="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
-        <Lock className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
-        <div className="text-xs text-amber-900 leading-relaxed">
+      {/* Security Advisory */}
+      <div className="bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-3xl p-5 flex items-start gap-3">
+        <Lock className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+        <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed">
           <p className="font-bold">Enterprise Security Policy</p>
-          <p className="text-2xs text-amber-800 mt-0.5">
+          <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5">
             Never expose secret credentials (such as Supabase service-role keys or Gemini API keys) in the browser. 
             All secure AI processing and document OCR is handled on your private n8n server. The frontend only communicates with your authenticated webhook.
           </p>
@@ -131,20 +132,20 @@ export default function Settings() {
       {/* Settings Form */}
       <form onSubmit={handleSave} className="space-y-6">
         {/* n8n Integration */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-          <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <div className="bg-white dark:bg-dark-card rounded-3xl border border-light-border dark:border-dark-border p-6 shadow-card-light dark:shadow-card-dark space-y-4">
+          <div className="flex items-center gap-3 pb-3 border-b border-light-border dark:border-white/5">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200/60 dark:border-brand-500/20 flex items-center justify-center">
               <Zap className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900">n8n Workflow Integration</h3>
-              <p className="text-2xs text-slate-500">Endpoints running the AI onboarding automation</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">n8n Workflow Integration</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">Endpoints running the AI onboarding automation</p>
             </div>
           </div>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 n8n Webhook URL (Vendor Onboarding Trigger) <span className="text-rose-500">*</span>
               </label>
               <input
@@ -153,16 +154,16 @@ export default function Settings() {
                 value={config.n8nWebhookUrl}
                 onChange={handleChange}
                 placeholder="https://your-n8n.cloud/webhook/vendor-onboarding"
-                className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3.5 py-2 text-xs font-mono bg-slate-50/50 dark:bg-dark-elevated text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400"
               />
-              <p className="text-2xs text-slate-400 mt-1">
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                 The production webhook URL configured in your n8n workflow. Accepts POST with multipart/form-data.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   n8n Status Poll URL (Optional)
                 </label>
                 <input
@@ -171,12 +172,12 @@ export default function Settings() {
                   value={config.n8nStatusUrl}
                   onChange={handleChange}
                   placeholder="https://your-n8n.cloud/webhook/status"
-                  className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full px-3.5 py-2 text-xs font-mono bg-slate-50/50 dark:bg-dark-elevated text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   n8n API Base URL (Optional REST endpoints)
                 </label>
                 <input
@@ -185,25 +186,24 @@ export default function Settings() {
                   value={config.n8nApiBaseUrl}
                   onChange={handleChange}
                   placeholder="https://your-backend.com/api"
-                  className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                  className="w-full px-3.5 py-2 text-xs font-mono bg-slate-50/50 dark:bg-dark-elevated text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400"
                 />
               </div>
             </div>
 
-            {/* Test Connection Button */}
             <div className="pt-2 flex items-center gap-3">
               <button
                 type="button"
                 onClick={handleTestWebhook}
                 disabled={testingWebhook}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2 rounded-xl transition-colors border border-slate-200"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold bg-slate-100 dark:bg-dark-elevated hover:bg-slate-200 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 px-4 py-2 rounded-xl transition-colors border border-slate-200 dark:border-white/10"
               >
-                <Zap className={`w-3.5 h-3.5 ${testingWebhook ? 'animate-pulse text-indigo-600' : 'text-slate-500'}`} />
+                <Zap className={`w-3.5 h-3.5 ${testingWebhook ? 'animate-pulse text-brand-600' : 'text-slate-500'}`} />
                 {testingWebhook ? 'Testing Connectivity...' : 'Test Webhook Connectivity'}
               </button>
 
               {testResult && (
-                <span className={`text-xs flex items-center gap-1.5 ${testResult.success ? 'text-emerald-700' : 'text-rose-700'}`}>
+                <span className={`text-xs flex items-center gap-1.5 font-medium ${testResult.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                   {testResult.success ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertTriangle className="w-4 h-4 shrink-0" />}
                   <span className="truncate max-w-md">{testResult.message}</span>
                 </span>
@@ -213,20 +213,20 @@ export default function Settings() {
         </div>
 
         {/* Supabase Integration */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-          <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <div className="bg-white dark:bg-dark-card rounded-3xl border border-light-border dark:border-dark-border p-6 shadow-card-light dark:shadow-card-dark space-y-4">
+          <div className="flex items-center gap-3 pb-3 border-b border-light-border dark:border-white/5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-500/20 flex items-center justify-center">
               <Database className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Supabase Database Integration</h3>
-              <p className="text-2xs text-slate-500">Query vendor tables directly from the browser (Read-only Anon Key)</p>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Supabase Database Integration</h3>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">Query vendor records directly from the browser (Read-only Anon Key)</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Supabase Project URL
               </label>
               <input
@@ -235,12 +235,12 @@ export default function Settings() {
                 value={config.supabaseUrl}
                 onChange={handleChange}
                 placeholder="https://xyzcompany.supabase.co"
-                className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3.5 py-2 text-xs font-mono bg-slate-50/50 dark:bg-dark-elevated text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Supabase Public Anon Key
               </label>
               <input
@@ -249,7 +249,7 @@ export default function Settings() {
                 value={config.supabaseAnonKey}
                 onChange={handleChange}
                 placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full px-3.5 py-2 text-xs font-mono bg-slate-50/50 dark:bg-dark-elevated text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400"
               />
             </div>
           </div>
@@ -260,7 +260,7 @@ export default function Settings() {
           <div className="flex items-center gap-2">
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-xs transition-colors"
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-glow-sm transition-all"
             >
               <Save className="w-4 h-4" />
               Save Settings
@@ -269,7 +269,7 @@ export default function Settings() {
             <button
               type="button"
               onClick={handleResetDefaults}
-              className="inline-flex items-center gap-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium px-4 py-2.5 rounded-xl transition-colors"
+              className="inline-flex items-center gap-1.5 bg-white dark:bg-dark-elevated border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-700 dark:text-slate-300 text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset Defaults
@@ -277,16 +277,15 @@ export default function Settings() {
           </div>
 
           {savedSuccess && (
-            <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4" /> Configuration saved successfully
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4" /> Settings updated successfully
             </span>
           )}
 
-          {/* Clear Cache */}
           <button
             type="button"
             onClick={handleClearCache}
-            className="inline-flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-3 py-2 rounded-xl transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-500/10 px-3.5 py-2 rounded-xl transition-colors font-semibold"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Clear Demo Submission Cache
@@ -294,12 +293,11 @@ export default function Settings() {
         </div>
 
         {cacheCleared && (
-          <p className="text-xs text-emerald-600 font-medium text-right">
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold text-right">
             Demo submission cache cleared.
           </p>
         )}
       </form>
-    </div>
+    </motion.div>
   );
 }
-

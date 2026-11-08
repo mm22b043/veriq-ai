@@ -1,13 +1,16 @@
-import React from 'react';
-import { Menu, Zap, Sun, Moon, Plus } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Menu, Zap, Sun, Moon, Plus, LogOut, User, ChevronDown } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { getConfig } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import GlowingSearch from './GlowingSearch';
 
 export default function Header({ onMenuClick }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
-  const config = getConfig();
+  const { user, logout } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const getPageTitle = (path) => {
     switch (path) {
@@ -22,10 +25,15 @@ export default function Header({ onMenuClick }) {
     }
   };
 
-  const { title, subtitle } = getPageTitle(location.pathname);
+  const { title } = getPageTitle(location.pathname);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
-    <header className="h-18 px-4 md:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors duration-300 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-md border-b border-light-border dark:border-dark-border">
+    <header className="h-18 px-4 md:px-8 flex items-center justify-between sticky top-0 z-30 transition-colors duration-300 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-md border-b border-light-border dark:border-dark-border gap-4">
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
@@ -34,23 +42,25 @@ export default function Header({ onMenuClick }) {
           <Menu className="w-5 h-5" />
         </button>
 
-        <div>
-          <h1 className="text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2 font-sans">
-            {title}
-          </h1>
-          <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400 font-medium">{subtitle}</p>
-        </div>
+        <h1 className="text-base md:text-lg font-bold text-slate-900 dark:text-white tracking-tight font-sans shrink-0 hidden sm:block">
+          {title}
+        </h1>
+      </div>
+
+      {/* Glowing Search Bar in Header (Image 2 reference) */}
+      <div className="flex-1 max-w-md mx-2 hidden md:block">
+        <GlowingSearch placeholder="Search vendors, tax IDs, compliance..." />
       </div>
 
       <div className="flex items-center gap-3">
         {/* Backend Webhook Status Pill */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/10 text-xs shadow-2xs">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           <span className="text-slate-500 dark:text-slate-400 font-medium">n8n:</span>
-          <span className="font-semibold text-emerald-600 dark:text-emerald-400 font-mono text-[11px] truncate max-w-[130px]">
+          <span className="font-semibold text-emerald-600 dark:text-emerald-400 font-mono text-[11px] truncate max-w-[120px]">
             Live Webhook
           </span>
         </div>
@@ -69,14 +79,55 @@ export default function Header({ onMenuClick }) {
           )}
         </button>
 
+        {/* User Profile / Auth Chip */}
+        {user ? (
+          <div className="relative">
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="flex items-center gap-2 p-1.5 pr-2.5 rounded-full bg-slate-100 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 hover:border-brand-500 transition-all text-xs"
+            >
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-bold text-[11px] flex items-center justify-center shadow-xs">
+                {user.avatar || 'U'}
+              </div>
+              <span className="font-semibold text-slate-800 dark:text-slate-200 hidden sm:inline text-xs">
+                {user.name}
+              </span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
+            </button>
+
+            {userMenuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-dark-card border border-light-border dark:border-dark-border rounded-2xl shadow-xl p-2 z-50 space-y-1">
+                <div className="px-3 py-2 border-b border-light-border dark:border-white/5">
+                  <p className="text-xs font-bold text-slate-900 dark:text-white">{user.name}</p>
+                  <p className="text-[10px] text-slate-400 truncate">{user.role}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline px-2 py-1"
+          >
+            Sign In
+          </Link>
+        )}
+
         {/* Quick Action Button */}
         {location.pathname !== '/register' && (
           <Link
             to="/register"
-            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-glow-sm hover:shadow-glow-violet"
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-glow-sm hover:shadow-glow-violet shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Onboard Vendor</span>
+            <span className="hidden sm:inline">Onboard Vendor</span>
           </Link>
         )}
       </div>

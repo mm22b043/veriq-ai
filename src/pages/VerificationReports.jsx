@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import LoadingState from '../components/LoadingState';
+import DownloadReportButton from '../components/DownloadReportButton';
 import { getVendors } from '../services/api';
 
 export default function VerificationReports() {
@@ -92,13 +93,12 @@ export default function VerificationReports() {
           </p>
         </div>
 
-        {/* Vendor Selector Dropdown */}
-        <div className="flex items-center gap-2 self-stretch sm:self-auto">
-          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 shrink-0">Select Vendor:</label>
+        {/* Vendor Selector & Download Action */}
+        <div className="flex flex-wrap items-center gap-2.5 self-stretch sm:self-auto">
           <select
             value={selectedVendorId || ''}
             onChange={(e) => setSelectedVendorId(e.target.value)}
-            className="text-xs bg-slate-50/50 dark:bg-dark-elevated text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-brand-500/20 focus:outline-none w-full sm:w-auto"
+            className="text-xs bg-slate-50/50 dark:bg-dark-elevated text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl px-3 py-2 font-medium focus:ring-2 focus:ring-brand-500/20 focus:outline-none"
           >
             {vendors.map((v) => (
               <option key={v.vendorId || v.id} value={v.vendorId || v.id}>
@@ -106,6 +106,9 @@ export default function VerificationReports() {
               </option>
             ))}
           </select>
+
+          {/* Download Report Button with Animation */}
+          <DownloadReportButton vendor={selectedVendor} />
         </div>
       </div>
 

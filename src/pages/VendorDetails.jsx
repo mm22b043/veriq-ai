@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import LoadingState from '../components/LoadingState';
+import DownloadReportButton from '../components/DownloadReportButton';
 import { getVendorById } from '../services/api';
 
 export default function VendorDetails() {
@@ -71,12 +72,15 @@ export default function VendorDetails() {
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
 
-        <button
-          onClick={() => navigate('/reports', { state: { vendorId: vendor.vendorId || vendor.id } })}
-          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-glow-sm"
-        >
-          <FileCheck2 className="w-4 h-4" /> View Verification Report
-        </button>
+        <div className="flex items-center gap-2.5">
+          <DownloadReportButton vendor={vendor} />
+          <button
+            onClick={() => navigate('/reports', { state: { vendorId: vendor.vendorId || vendor.id } })}
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-glow-sm"
+          >
+            <FileCheck2 className="w-4 h-4" /> View Full Report
+          </button>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-dark-card rounded-3xl border border-light-border dark:border-dark-border p-6 sm:p-8 shadow-card-light dark:shadow-card-dark space-y-6">

@@ -15,10 +15,12 @@ import {
   FileText,
   X,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Download
 } from 'lucide-react';
 import StatusBadge from '../components/StatusBadge';
 import LoadingState from '../components/LoadingState';
+import DownloadReportButton from '../components/DownloadReportButton';
 import { getVendors } from '../services/api';
 
 export default function AllVendors() {
@@ -28,6 +30,7 @@ export default function AllVendors() {
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     fetchVendors();
@@ -43,6 +46,22 @@ export default function AllVendors() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleExportAll = () => {
+    setExporting(true);
+    setTimeout(() => {
+      const blob = new Blob([JSON.stringify(vendors, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `VERIQ_Vendor_Registry_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setExporting(false);
+    }, 500);
   };
 
   const filtered = vendors.filter((v) => {
@@ -78,12 +97,23 @@ export default function AllVendors() {
           </p>
         </div>
 
-        <button
-          onClick={() => navigate('/register')}
-          className="inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-glow-sm"
-        >
-          + Add New Vendor
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleExportAll}
+            disabled={exporting || vendors.length === 0}
+            className="inline-flex items-center gap-1.5 bg-white dark:bg-dark-elevated text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 hover:border-brand-500 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all shadow-xs"
+          >
+            <Download className="w-3.5 h-3.5 text-brand-600 dark:text-brand-400" />
+            <span>{exporting ? 'Exporting...' : 'Export Registry'}</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/register')}
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-glow-sm"
+          >
+            + Add New Vendor
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -294,23 +324,27 @@ export default function AllVendors() {
                 </div>
               </div>
 
-              <div className="sticky bottom-0 bg-slate-50/90 dark:bg-dark-surface/90 px-6 py-3.5 border-t border-light-border dark:border-white/5 flex justify-end gap-2.5">
-                <button
-                  onClick={() => setSelectedVendor(null)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-200/60 dark:hover:bg-white/5 transition-colors"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() => {
-                    const id = selectedVendor.vendorId || selectedVendor.id;
-                    setSelectedVendor(null);
-                    navigate('/reports', { state: { vendorId: id } });
-                  }}
-                  className="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 rounded-xl shadow-glow-sm"
-                >
-                  Open Full Verification Report
-                </button>
+              <div className="sticky bottom-0 bg-slate-50/90 dark:bg-dark-surface/90 px-6 py-3.5 border-t border-light-border dark:border-white/5 flex items-center justify-between">
+                <DownloadReportButton vendor={selectedVendor} />
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedVendor(null)}
+                    className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-200/60 dark:hover:bg-white/5 transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      const id = selectedVendor.vendorId || selectedVendor.id;
+                      setSelectedVendor(null);
+                      navigate('/reports', { state: { vendorId: id } });
+                    }}
+                    className="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 rounded-xl shadow-glow-sm"
+                  >
+                    Open Full Verification Report
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

@@ -56,3 +56,4 @@ export default function VeriqLogo({ size = 32, showText = true, className = '' }
     </div>
   );
 }
+

@@ -38,11 +38,27 @@ export default {
         }
       },
       boxShadow: {
-        'glow-violet': '0 0 25px -5px rgba(139, 92, 246, 0.35)',
-        'glow-cyan': '0 0 25px -5px rgba(6, 182, 212, 0.35)',
-        'glow-sm': '0 0 15px -3px rgba(124, 58, 237, 0.25)',
+        'glow-violet': '0 0 35px -5px rgba(139, 92, 246, 0.45)',
+        'glow-cyan': '0 0 35px -5px rgba(6, 182, 212, 0.45)',
+        'glow-sm': '0 0 15px -3px rgba(124, 58, 237, 0.3)',
+        'halo-purple': '0 0 45px 5px rgba(168, 85, 247, 0.35)',
+        'halo-light': '0 0 30px 2px rgba(139, 92, 246, 0.15)',
         'card-light': '0 10px 30px -10px rgba(124, 58, 237, 0.06), 0 4px 12px -4px rgba(15, 23, 42, 0.03)',
         'card-dark': '0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06)',
+      },
+      animation: {
+        'border-beam': 'border-beam 6s linear infinite',
+        'pulse-glow': 'pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        'border-beam': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.9' },
+        }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],

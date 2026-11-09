@@ -87,18 +87,15 @@ export default function Header({ onMenuClick }) {
               className="flex items-center gap-2 p-1.5 pr-2.5 rounded-full bg-slate-100 dark:bg-white/[0.06] border border-slate-200/80 dark:border-white/10 hover:border-brand-500 transition-all text-xs"
             >
               <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-bold text-[11px] flex items-center justify-center shadow-xs">
-                {user.avatar || 'U'}
+                {user.avatar || 'VQ'}
               </div>
-              <span className="font-semibold text-slate-800 dark:text-slate-200 hidden sm:inline text-xs">
-                {user.name}
-              </span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
 
             {userMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-dark-card border border-light-border dark:border-dark-border rounded-2xl shadow-xl p-2 z-50 space-y-1">
+              <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[#121422] border border-light-border dark:border-white/10 rounded-2xl shadow-xl p-2 z-50 space-y-1">
                 <div className="px-3 py-2 border-b border-light-border dark:border-white/5">
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">{user.name}</p>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user.email}</p>
                   <p className="text-[10px] text-slate-400 truncate">{user.role}</p>
                 </div>
                 <button

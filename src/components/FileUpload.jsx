@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { FileText, UploadCloud, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { FileText, UploadCloud, X, CheckCircle, AlertCircle, Download } from 'lucide-react';
 
 export default function FileUpload({
   label,
@@ -51,6 +52,18 @@ export default function FileUpload({
     }
   };
 
+  const handleDownload = () => {
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const formatFileSize = (bytes) => {
     if (!bytes) return '';
     if (bytes < 1024) return bytes + ' B';
@@ -85,32 +98,43 @@ export default function FileUpload({
       />
 
       {!file ? (
-        <div
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          transition={{ duration: 0.2 }}
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 ${
+          className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all duration-200 ${
             dragActive
-              ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-500/10'
+              ? 'border-brand-500 bg-brand-50/60 dark:bg-brand-500/15 shadow-[0_0_20px_-4px_rgba(139,92,246,0.3)]'
               : error
               ? 'border-rose-300 bg-rose-50/40 dark:border-rose-500/40 dark:bg-rose-500/10'
-              : 'border-slate-200 dark:border-white/10 hover:border-brand-400 dark:hover:border-brand-500 bg-slate-50/50 dark:bg-white/[0.02] hover:bg-white dark:hover:bg-white/[0.04]'
+              : 'border-slate-200 dark:border-white/10 hover:border-brand-400 dark:hover:border-brand-500/60 bg-slate-50/40 dark:bg-white/[0.02] hover:bg-brand-50/30 dark:hover:bg-white/[0.04] hover:shadow-[0_0_16px_-4px_rgba(139,92,246,0.2)]'
           }`}
         >
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-10 h-10 rounded-xl bg-white dark:bg-dark-elevated shadow-xs border border-slate-200/80 dark:border-white/10 flex items-center justify-center text-brand-600 dark:text-brand-400 mb-2">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <motion.div
+              animate={dragActive ? { scale: 1.15, rotate: -5 } : { scale: 1, rotate: 0 }}
+              transition={{ duration: 0.2 }}
+              className="w-10 h-10 rounded-xl bg-white dark:bg-dark-elevated shadow-xs border border-slate-200/80 dark:border-white/10 flex items-center justify-center text-brand-600 dark:text-brand-400"
+            >
               <UploadCloud className="w-5 h-5" />
-            </div>
+            </motion.div>
             <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-              <span className="text-brand-600 dark:text-brand-400 hover:underline">Click to upload</span> or drag and drop
+              <span className="text-brand-600 dark:text-brand-400 hover:underline">Click to upload</span> or drag & drop
             </p>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{description}</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">{description}</p>
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div className="border border-slate-200 dark:border-white/10 bg-white dark:bg-dark-surface rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
+        <motion.div
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="border border-emerald-200 dark:border-emerald-500/25 bg-emerald-50/60 dark:bg-emerald-500/5 rounded-2xl p-3.5 flex items-center justify-between shadow-xs"
+        >
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200/60 dark:border-brand-500/20 flex items-center justify-center shrink-0">
               <FileText className="w-5 h-5" />
@@ -121,11 +145,23 @@ export default function FileUpload({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* ✅ Download Button */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDownload}
+              title="Download this PDF"
+              className="p-1.5 text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/15 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+            </motion.button>
+
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-semibold px-2.5 py-1 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
+              className="text-xs text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 font-semibold px-2 py-1 rounded-lg hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
             >
               Replace
             </button>
@@ -141,14 +177,17 @@ export default function FileUpload({
               <X className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
 
+      {/* Upload progress bar */}
       {progress > 0 && progress < 100 && (
         <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5 overflow-hidden mt-1.5">
-          <div
-            className="bg-gradient-to-r from-brand-600 to-indigo-500 h-1.5 rounded-full transition-all duration-300 shadow-glow-sm"
-            style={{ width: `${progress}%` }}
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
+            className="bg-gradient-to-r from-brand-600 to-indigo-500 h-1.5 rounded-full shadow-glow-sm"
           />
         </div>
       )}

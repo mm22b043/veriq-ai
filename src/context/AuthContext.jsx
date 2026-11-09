@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
@@ -6,31 +6,23 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem('veriq_user');
-      return stored ? JSON.parse(stored) : {
-        name: 'Sarah Jenkins',
-        email: 's.jenkins@zamp.ai',
-        role: 'Lead Procurement Analyst',
-        avatar: 'SJ'
-      };
+      return stored ? JSON.parse(stored) : null;
     } catch {
-      return {
-        name: 'Sarah Jenkins',
-        email: 's.jenkins@zamp.ai',
-        role: 'Lead Procurement Analyst',
-        avatar: 'SJ'
-      };
+      return null;
     }
   });
 
-  const login = (email = 'analyst@veriq.ai', role = 'Procurement Lead') => {
+  const login = (email, password) => {
+    // Simple demo login — just store the email, derive initials cleanly
+    const initials = email.slice(0, 2).toUpperCase();
     const newUser = {
-      name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase()),
       email,
-      role,
-      avatar: email.slice(0, 2).toUpperCase()
+      avatar: initials,
+      role: 'Procurement Analyst',
     };
     setUser(newUser);
     localStorage.setItem('veriq_user', JSON.stringify(newUser));
+    return true;
   };
 
   const logout = () => {
@@ -47,9 +39,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 }
-

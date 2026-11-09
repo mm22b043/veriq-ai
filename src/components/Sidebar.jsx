@@ -112,14 +112,14 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* User Card & Logout / Live Webhook at bottom */}
         <div className="p-3.5 border-t border-light-border dark:border-white/5 bg-slate-50/60 dark:bg-white/[0.02] space-y-2">
           {user && (
-            <div className="rounded-2xl bg-white dark:bg-dark-elevated border border-slate-200/80 dark:border-white/10 p-3 shadow-2xs flex items-center justify-between">
+            <div className="rounded-2xl bg-white dark:bg-[#121422] border border-slate-200/80 dark:border-white/10 p-3 shadow-2xs flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                  {user.avatar || 'U'}
+                  {user.avatar || 'VQ'}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{user.name}</p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">{user.role}</p>
+                  <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{user.email || 'analyst@veriq.ai'}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">{user.role || 'Analyst'}</p>
                 </div>
               </div>
 
